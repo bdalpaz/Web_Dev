@@ -35,14 +35,15 @@ app.post('/users', (req, res) => {
 });
 
 
-app.get('/users', (req, res) => {
+app.get('/users/:id', (req, res) => {
   const userId = parseInt(req.params.id);
   const user = users.find(u => u.id === userId);
   if (!user) {
     return res.status(404).json({ error: 'User not found' });
   } else {
     return res.json(user);
-  }});
+  }
+});
 
   app.put('/users/:id', (req, res) => {
     const userId = parseInt(req.params.id);

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha IDS</title>
+    <style>
+
+        body { font-family: monospace; background-color: #0d1117; color: #c9d1d9; margin: 20px; }
+        header, footer { text-align: center; padding: 10px; border-bottom: 1px solid #30363d; }
+        footer { border-top: 1px solid #30363d; border-bottom: none; margin-top: 40px; }
+        section { margin-bottom: 30px; padding: 15px; border: 1px solid #30363d; border-radius: 6px; }
+        .log-item { border-left: 4px solid #f85149; padding: 10px; margin-bottom: 10px; background-color: #161b22; }
+        input, textarea, button { width: 100%; margin-top: 5px; padding: 8px; box-sizing: border-box; background: #010409; color: #fff; border: 1px solid #30363d; }
+        button { background-color: #238636; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #2ea043; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Minha IDS</h1>
+        <p>Sistema de Detecção de Intrusão - Painel de Controle</p>
+    </header>
+
+    <main>
+        <section id="status">
+            <h2>Status do Sistema</h2>
+            <p>Monitoramento de tráfego de rede ativo. Nenhuma anomalia crítica detectada nos últimos 5 minutos.</p>
+        </section>
+
+        <section id="reporte">
+            <h2>Reportar Anomalia Manualmente</h2>
+            <form id="formIncidente">
+                <label for="ip">IP Suspeito:</label><br>
+                <input type="text" id="ip" name="ip" required><br><br>
+                
+                <label for="detalhes">Detalhes da Ameaça:</label><br>
+                <textarea id="detalhes" name="detalhes" placeholder="Descreva o padrão de tráfego anormal..." required></textarea><br><br>
+                
+                <button type="submit">Registrar Evento</button>
+            </form>
+        </section>
+
+        <section id="logs">
+            <h2>Logs de Segurança Recentes</h2>
+            <div id="lista-logs"></div>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById("formIncidente");
+        const listaLogs = document.getElementById("lista-logs");
+        const API_URL = "http://localhost:3000/api/logs";
+
+        async function carregarLogs() {
+            try {
+                const resposta = await fetch(API_URL);
+                const logs = await resposta.json();
+                renderizar(logs);
+            } catch (erro) {
+                console.error("Erro de conexão com o sensor IDS:", erro);
+            }
+        }
+
+        function renderizar(logs) {
+            listaLogs.innerHTML = ""; 
+            
+            logs.forEach(log => {
+                const div = document.createElement("div");
+                div.classList.add("log-item");
+                
+                div.innerHTML = `<strong>IP Origem: ${log.ip}</strong> <p>Ameaça: ${log.detalhes}</p>`;
+                
+                listaLogs.appendChild(div); 
+            });
+        }
+
+        form.addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const dados = new FormData(form);
+            const payload = {
+                ip: dados.get("ip"),
+                detalhes: dados.get("detalhes")
+            };
+
+            try {
+                await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                form.reset(); 
+                carregarLogs();
+            } catch (erro) {
+                console.error("Falha ao registrar log:", erro);
+            }
+        });
+
+        carregarLogs();
+    </script>
+</body>
+</html>
