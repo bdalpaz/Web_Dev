@@ -41,7 +41,6 @@ app.use((req, res, next) => {
 
     let ataqueDetectado = false;
 
-    // passa o scanner nos dados totais
     for (let padrao of padroesSuspeitos) {
         if (padrao.regex.test(dadosParaAnalisar)) {
             logsMonitoramento.unshift({
