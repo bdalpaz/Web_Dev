@@ -344,6 +344,7 @@
             if (viewId === 'feed') renderizarFeed();
         }
 
+        // Tema
         function toggleTheme() {
             const modalAviso = new bootstrap.Modal(document.getElementById('modalTemaClaro'));
             modalAviso.show();
@@ -367,6 +368,7 @@
             }
         }
 
+        // Cadastro
         function handleCadastro(e) {
             e.preventDefault();
             const nome = document.getElementById('cad-nome').value;
@@ -386,6 +388,7 @@
             navigate('feed');
         }
 
+        // Login
         function handleLogin(e) {
             e.preventDefault();
             if(!currentUser) {
@@ -403,6 +406,7 @@
             navigate('feed');
         }
 
+        // Logout
         function logout() {
             currentUser = null;
             localStorage.removeItem('currentUser');
@@ -410,6 +414,7 @@
             navigate('home');
         }
 
+        // Perfil
         function carregarPerfil() {
             if(!currentUser) return;
             document.getElementById('perfil-nome').innerText = currentUser.nome;
@@ -419,6 +424,7 @@
             document.getElementById('perfil-interesses').innerText = currentUser.interesses || 'Sem interesses definidos.';
         }
 
+        // Configuração
         function carregarFormConfig() {
             if(!currentUser) return;
             document.getElementById('conf-nome').value = currentUser.nome;
@@ -440,6 +446,7 @@
             navigate('perfil');
         }
 
+       // Comentários
        function renderizarFeed() {
             const feedLista = document.getElementById('feed-lista');
             feedLista.innerHTML = '';
