@@ -1,105 +1,519 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha IDS</title>
+    <title>HackAlly</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <style>
+        :root {
+            --hacker-bg: #020602;
+            --hacker-surface: #0a140a;
+            --hacker-green: #39ff14;
+            --hacker-dark-green: #004d00;
+            --hacker-border: #1a661a;
+        }
 
-        body { font-family: monospace; background-color: #0d1117; color: #c9d1d9; margin: 20px; }
-        header, footer { text-align: center; padding: 10px; border-bottom: 1px solid #30363d; }
-        footer { border-top: 1px solid #30363d; border-bottom: none; margin-top: 40px; }
-        section { margin-bottom: 30px; padding: 15px; border: 1px solid #30363d; border-radius: 6px; }
-        .log-item { border-left: 4px solid #f85149; padding: 10px; margin-bottom: 10px; background-color: #161b22; }
-        input, textarea, button { width: 100%; margin-top: 5px; padding: 8px; box-sizing: border-box; background: #010409; color: #fff; border: 1px solid #30363d; }
-        button { background-color: #238636; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #2ea043; }
+        body {
+            background-color: var(--hacker-bg);
+            color: var(--hacker-green);
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .bg-body-tertiary { background-color: var(--hacker-surface) !important; }
+        .navbar { border-bottom: 1px solid var(--hacker-border) !important; background-color: var(--hacker-surface) !important; }
+        .navbar-brand, .nav-link { color: var(--hacker-green) !important; }
+        .nav-link:hover { color: #fff !important; text-shadow: 0 0 5px var(--hacker-green); }
+        
+        .card { 
+            background-color: var(--hacker-surface); 
+            border: 1px solid var(--hacker-border); 
+            color: var(--hacker-green); 
+        }
+        
+        h1, h2, h3, h4, h5, h6, p, label { color: var(--hacker-green) !important; }
+        .text-muted { color: #2ea043 !important; } 
+
+        .form-control {
+            background-color: var(--hacker-bg) !important;
+            border: 1px solid var(--hacker-border);
+            color: var(--hacker-green) !important;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .form-control:focus {
+            border-color: var(--hacker-green);
+            box-shadow: 0 0 8px rgba(57, 255, 20, 0.4);
+        }
+        .form-control::placeholder { color: #1a661a; }
+
+        .btn-primary, .btn-success {
+            background-color: var(--hacker-dark-green);
+            border: 1px solid var(--hacker-green);
+            color: var(--hacker-green);
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .btn-primary:hover, .btn-success:hover {
+            background-color: var(--hacker-green);
+            color: var(--hacker-bg);
+            box-shadow: 0 0 10px var(--hacker-green);
+        }
+        .btn-outline-secondary {
+            color: var(--hacker-green);
+            border-color: var(--hacker-green);
+        }
+        .btn-outline-secondary:hover {
+            background-color: var(--hacker-green);
+            color: var(--hacker-bg);
+        }
+        .btn-outline-primary {
+            color: var(--hacker-green);
+            border-color: var(--hacker-green);
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--hacker-green);
+            color: var(--hacker-bg);
+        }
+        .btn-danger, .btn-outline-danger {
+            background-color: transparent;
+            border-color: #ff3333;
+            color: #ff3333;
+        }
+        .btn-danger:hover, .btn-outline-danger:hover {
+            background-color: #ff3333;
+            color: var(--hacker-bg);
+        }
+
+        #ids-view { font-family: monospace; background-color: var(--hacker-surface); color: var(--hacker-green); padding: 20px; border: 1px solid var(--hacker-border); }
+        #ids-view header, #ids-view footer { text-align: center; padding: 10px; border-bottom: 1px solid var(--hacker-border); }
+        #ids-view footer { border-top: 1px solid var(--hacker-border); border-bottom: none; margin-top: 40px; }
+        #ids-view section { margin-bottom: 30px; padding: 15px; border: 1px solid var(--hacker-border); border-radius: 6px; background-color: var(--hacker-bg); }
+        #ids-view .log-item { border-left: 4px solid #ff3333; padding: 10px; margin-bottom: 10px; background-color: var(--hacker-surface); }
+        #ids-view input, #ids-view textarea, #ids-view button { width: 100%; margin-top: 5px; padding: 8px; box-sizing: border-box; background: var(--hacker-bg); color: var(--hacker-green); border: 1px solid var(--hacker-border); }
+        #ids-view button { background-color: var(--hacker-dark-green); cursor: pointer; font-weight: bold; color: var(--hacker-green); border: 1px solid var(--hacker-green); }
+        #ids-view button:hover { background-color: var(--hacker-green); color: var(--hacker-bg); }
+
+        #ids-view .controls { margin-bottom: 20px; border: 1px solid var(--hacker-border); padding: 15px; border-radius: 5px; background: var(--hacker-surface); color: var(--hacker-green); }
+        #ids-view .controls h2 { margin-top: 0; color: var(--hacker-green); }
+        #ids-view label { display: block; margin-bottom: 5px; font-weight: bold; }
+        #ids-view .controls input { width: 100px; padding: 5px; margin-right: 10px; margin-bottom: 10px; color: var(--hacker-green); background: var(--hacker-bg); border: 1px solid var(--hacker-border);}
+
+        .spa-view { display: none; }
+        .spa-view.active { display: block; }
+        .profile-img-placeholder { width: 120px; height: 120px; object-fit: cover; border-radius: 50%; background-color: var(--hacker-surface); border: 2px solid var(--hacker-green); }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Minha IDS</h1>
-        <p>Sistema de Detecção de Intrusão - Painel de Controle</p>
-    </header>
 
-    <main>
-        <section id="status">
-            <h2>Status do Sistema</h2>
-            <p>Monitoramento de tráfego de rede ativo. Nenhuma anomalia crítica detectada nos últimos 5 minutos.</p>
-        </section>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#" onclick="navigate('home')">HackAlly</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="navigate('home')">HOME</a></li>
+                    <li class="nav-item logged-in-only" style="display:none;"><a class="nav-link" href="#" onclick="navigate('feed')">FEED</a></li>
+                    <li class="nav-item logged-in-only" style="display:none;"><a class="nav-link" href="#" onclick="navigate('perfil')">PERFIL</a></li>
+                    <li class="nav-item logged-in-only" style="display:none;"><a class="nav-link" href="#" onclick="navigate('config')">CONFIG</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="#" onclick="navigate('ids-view')">IDS</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-secondary btn-sm me-3" onclick="toggleTheme()">Alternar Modo</button>
+                    <button class="btn btn-primary btn-sm me-2 logged-out-only" onclick="navigate('login')">Entrar</button>
+                    <button class="btn btn-success btn-sm logged-out-only" onclick="navigate('cadastro')">Cadastrar</button>
+                    <button class="btn btn-danger btn-sm logged-in-only" style="display:none;" onclick="logout()">Sair</button>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-        <section id="reporte">
-            <h2>Reportar Anomalia Manualmente</h2>
-            <form id="formIncidente">
-                <label for="ip">IP Suspeito:</label><br>
-                <input type="text" id="ip" name="ip" required><br><br>
-                
-                <label for="detalhes">Detalhes da Ameaça:</label><br>
-                <textarea id="detalhes" name="detalhes" placeholder="Descreva o padrão de tráfego anormal..." required></textarea><br><br>
-                
-                <button type="submit">Registrar Evento</button>
-            </form>
-        </section>
-
-        <section id="logs">
-            <h2>Logs de Segurança Recentes</h2>
-            <div id="lista-logs"></div>
-        </section>
-
-        <title>Texto para aula de css :]</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .controls { margin-bottom: 20px; border: 1px solid #ccc; padding: 15px; border-radius: 5px; }
-        .controls h2 { margin-top: 0; color: #333; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input { width: 100px; padding: 5px; margin-right: 10px; margin-bottom: 10px; }
-        .elemento-container { margin: 20px 0; padding: 20px; background-color: #f9f9f9; border-radius: 5px; }
-    </style>
-</head>
-<body>
-    <div class="controls">
-        <h2>Padding</h2>
-        <label for="padding-top">Padding Top (px):</label>
-        <input type="number" id="padding-top" value="10">
-
-        <label for="padding-horizontal">Padding Horizontal (px):</label>
-        <input type="number" id="padding-horizontal" value="10">
-
-        <label for="padding-bottom">Padding Bottom (px):</label>
-        <input type="number" id="padding-bottom" value="10">
+    <div class="modal fade" id="modalTemaClaro" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="background-color: var(--hacker-bg); border: 1px solid var(--hacker-green);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--hacker-border);">
+                    <h5 class="modal-title fw-bold text-danger">> AVISO_DE_SISTEMA _</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="fs-5">Você realmente quer fazer isso? Que hacker que você conhece que usa o modo claro?? Isso não é muito radical da sua parte....</p>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--hacker-border);">
+                    <button type="button" class="btn btn-danger" onclick="confirmarTemaClaro()">Sim, sou esse tipo de pessoa</button>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Não, você está certo!</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="controls">
-        <h2>Margin</h2>
-        <label for="margin-top">Margin Top (px):</label>
-        <input type="number" id="margin-top" value="0">
-
-        <label for="margin-horizontal">Margin Horizontal (px):</label>
-        <input type="number" id="margin-horizontal" value="auto">
-
-        <label for="margin-bottom">Margin Bottom (px):</label>
-        <input type="number" id="margin-bottom" value="0">
+    <div class="modal fade" id="modalAzar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content" style="background-color: var(--hacker-bg); border: 2px solid #ff3333;">
+                <div class="modal-body text-center p-5">
+                    <h1 class="text-danger fw-bold" style="font-size: 5rem; text-shadow: 0 0 20px #ff3333;">> AZAR O SEU!! _</h1>
+                    <p class="fs-4 mt-3 text-danger">Modo claro desativado permanentemente neste sistema.</p>
+                    <button type="button" class="btn btn-outline-danger mt-4 btn-lg" data-bs-dismiss="modal">Aceitar meu destino no escuro</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="controls">
-        <h2>Border</h2>
-        <label for="border-width">Border Width (px):</label>
-        <input type="number" id="border-width" value="2">
+    <div class="container mt-4">
 
-        <label for="border-style">Border Style:</label>
-        <input type="text" id="border-style" value="solid">
+        <div id="home" class="spa-view active">
+            <div class="p-5 mb-4 bg-body-tertiary rounded-3 text-center border border-success">
+                <div class="container-fluid py-5">
+                    <h1 class="display-5 fw-bold">> BEM-VINDO À HackAlly _</h1>
+                    <p class="col-md-8 mx-auto fs-4">A sua nova rede social. Vista seu chapéu preto e venha fazer parte do nosso time.</p>
+                    <button class="btn btn-primary btn-lg logged-out-only mt-3  mx-auto" type="button" onclick="navigate('cadastro')">Criar Conta Agora</button>
+                    <button class="btn btn-primary btn-lg logged-in-only mt-3 mx-auto" style="display:none;" type="button" onclick="navigate('feed')">Ir para o Feed</button>                </div>
+            </div>
+        </div>
 
-        <label for="border-color">Border Color:</label>
-        <input type="text" id="border-color" value="aquamarine">
+        <div id="cadastro" class="spa-view">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-4">
+                    <h2 class="mb-4 text-center">> Cadastro _</h2>
+                    <form id="form-cadastro" onsubmit="handleCadastro(event)">
+                        <div class="mb-3">
+                            <label class="form-label">Nome de Usuário</label>
+                            <input type="text" id="cad-nome" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="cad-email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Senha</label>
+                            <input type="password" id="cad-senha" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Cadastrar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="login" class="spa-view">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-4">
+                    <h2 class="mb-4 text-center">> Login _</h2>
+                    <form id="form-login" onsubmit="handleLogin(event)">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="log-email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Senha</label>
+                            <input type="password" id="log-senha" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="perfil" class="spa-view">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body text-center">
+                            <img id="perfil-foto" src="https://placecats.com/150/150" alt="Foto de Perfil" class="profile-img-placeholder mb-3">
+                            <h3 id="perfil-nome" class="card-title">Nome do Usuário</h3>
+                            <p class="text-muted" id="perfil-email">email@exemplo.com</p>
+                            <hr style="border-color: var(--hacker-border);">
+                            <div class="text-start">
+                                <h5>Bio / Sobre</h5>
+                                <p id="perfil-bio">Nenhuma bio cadastrada.</p>
+                                <h5>Interesses</h5>
+                                <p id="perfil-interesses">Nenhum interesse cadastrado.</p>
+                            </div>
+                            <button class="btn btn-outline-primary mt-3" onclick="navigate('config')">Editar Perfil</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="config" class="spa-view">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <h2 class="mb-4">> Editar Perfil _</h2>
+                    <form id="form-config" onsubmit="handleConfigUpdate(event)">
+                        <div class="mb-3">
+                            <label class="form-label">Nome de exibição</label>
+                            <input type="text" id="conf-nome" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">URL da Foto</label>
+                            <input type="url" id="conf-foto" class="form-control" placeholder="Digite o link da sua foto de perfil">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Bio / Informações Gerais</label>
+                            <textarea id="conf-bio" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Interesses</label>
+                            <input type="text" id="conf-interesses" class="form-control" placeholder="Ex: Programação, Filmes, Esportes">
+                        </div>
+                        <button type="submit" class="btn btn-success">Salvar Alterações</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="feed" class="spa-view">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <h2 class="mb-4">> Feed de Comentários _</h2>
+                    
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <form onsubmit="handleNewPost(event)">
+                                <div class="mb-3">
+                                    <textarea id="novo-post-texto" class="form-control" rows="3" placeholder="O que você está pensando?" required></textarea>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">Publicar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="feed-lista">
+                        </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ids-view" class="spa-view rounded">
+            <header>
+                <h1>Minha IDS</h1>
+                <p>Sistema de Detecção de Intrusão - Painel de Controle</p>
+            </header>
+
+            <main>
+                <section id="status">
+                    <h2>Status do Sistema</h2>
+                    <p>Monitoramento de tráfego de rede ativo. Nenhuma anomalia crítica detectada nos últimos 5 minutos.</p>
+                </section>
+
+                <section id="reporte">
+                    <h2>Reportar Anomalia Manualmente</h2>
+                    <form id="formIncidente">
+                        <label for="ip">IP Suspeito:</label><br>
+                        <input type="text" id="ip" name="ip" required><br><br>
+                        
+                        <label for="detalhes">Detalhes da Ameaça:</label><br>
+                        <textarea id="detalhes" name="detalhes" placeholder="Descreva o padrão de tráfego anormal..." required></textarea><br><br>
+                        
+                        <button type="submit">Registrar Evento</button>
+                    </form>
+                </section>
+
+                <section id="logs">
+                    <h2>Logs de Segurança Recentes</h2>
+                    <div id="lista-logs"></div>
+                </section>
+
+            </main>
+        </div>
+
     </div>
 
-</body>
-</html>
-
-    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const form = document.getElementById("formIncidente");
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let posts = JSON.parse(localStorage.getItem('posts')) || [];
+
+        function navigate(viewId) {
+            document.querySelectorAll('.spa-view').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            
+            if ((viewId === 'feed' || viewId === 'perfil' || viewId === 'config') && !currentUser) {
+                alert("Você precisa estar logado!");
+                navigate('login');
+                return;
+            }
+
+            if (viewId === 'perfil') carregarPerfil();
+            if (viewId === 'config') carregarFormConfig();
+            if (viewId === 'feed') renderizarFeed();
+        }
+
+        function toggleTheme() {
+            const modalAviso = new bootstrap.Modal(document.getElementById('modalTemaClaro'));
+            modalAviso.show();
+        }
+
+        function confirmarTemaClaro() {
+            const modalAviso = bootstrap.Modal.getInstance(document.getElementById('modalTemaClaro'));
+            modalAviso.hide();
+
+            const modalAzar = new bootstrap.Modal(document.getElementById('modalAzar'));
+            modalAzar.show();
+        }
+
+        function atualizarNavbar() {
+            if (currentUser) {
+                document.querySelectorAll('.logged-out-only').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.logged-in-only').forEach(el => el.style.display = 'block');
+            } else {
+                document.querySelectorAll('.logged-out-only').forEach(el => el.style.display = 'block');
+                document.querySelectorAll('.logged-in-only').forEach(el => el.style.display = 'none');
+            }
+        }
+
+        function handleCadastro(e) {
+            e.preventDefault();
+            const nome = document.getElementById('cad-nome').value;
+            const email = document.getElementById('cad-email').value;
+            
+            currentUser = { 
+                nome, 
+                email, 
+                foto: 'https://via.placeholder.com/150', 
+                bio: 'Novo na HackAlly!', 
+                interesses: 'Aprendendo web dev' 
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            document.getElementById('form-cadastro').reset();
+            atualizarNavbar();
+            navigate('feed');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            if(!currentUser) {
+                 currentUser = { 
+                    nome: "Usuário Teste", 
+                    email: document.getElementById('log-email').value, 
+                    foto: 'https://via.placeholder.com/150', 
+                    bio: '', 
+                    interesses: '' 
+                };
+            }
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            document.getElementById('form-login').reset();
+            atualizarNavbar();
+            navigate('feed');
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            atualizarNavbar();
+            navigate('home');
+        }
+
+        function carregarPerfil() {
+            if(!currentUser) return;
+            document.getElementById('perfil-nome').innerText = currentUser.nome;
+            document.getElementById('perfil-email').innerText = currentUser.email;
+            document.getElementById('perfil-foto').src = currentUser.foto || 'https://via.placeholder.com/150';
+            document.getElementById('perfil-bio').innerText = currentUser.bio || 'Sem bio definida.';
+            document.getElementById('perfil-interesses').innerText = currentUser.interesses || 'Sem interesses definidos.';
+        }
+
+        function carregarFormConfig() {
+            if(!currentUser) return;
+            document.getElementById('conf-nome').value = currentUser.nome;
+            document.getElementById('conf-foto').value = currentUser.foto === 'https://via.placeholder.com/150' ? '' : currentUser.foto;
+            document.getElementById('conf-bio').value = currentUser.bio;
+            document.getElementById('conf-interesses').value = currentUser.interesses;
+        }
+
+        function handleConfigUpdate(e) {
+            e.preventDefault();
+            currentUser.nome = document.getElementById('conf-nome').value;
+            const foto = document.getElementById('conf-foto').value;
+            currentUser.foto = foto ? foto : 'https://placecats.com/150/150';
+            currentUser.bio = document.getElementById('conf-bio').value;
+            currentUser.interesses = document.getElementById('conf-interesses').value;
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            alert('Perfil atualizado com sucesso!');
+            navigate('perfil');
+        }
+
+       function renderizarFeed() {
+            const feedLista = document.getElementById('feed-lista');
+            feedLista.innerHTML = '';
+            
+            posts.forEach((post, index) => {
+                const ehOAutor = currentUser && currentUser.nome === post.autor;
+                
+                const botaoApagar = ehOAutor 
+                    ? `<button class="btn btn-sm btn-outline-danger" onclick="deletarPost(${index})">🗑️</button>` 
+                    : '';
+
+                const card = document.createElement('div');
+                card.className = 'card mb-3 shadow-sm';
+                card.innerHTML = `
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="d-flex align-items-center">
+                                <img src="${post.foto}" width="40" height="40" class="rounded-circle me-2" style="object-fit:cover; border: 1px solid var(--hacker-green);">
+                                <div>
+                                    <h6 class="mb-0 fw-bold">${post.autor}</h6>
+                                    <small class="text-muted">${post.data}</small>
+                                </div>
+                            </div>
+                            ${botaoApagar}
+                        </div>
+                        <p class="card-text mb-0">${post.texto}</p>
+                    </div>
+                `;
+                feedLista.appendChild(card);
+            });
+        }
+
+        function deletarPost(index) {
+            if(confirm("Tem a certeza que deseja apagar este comentário?")) {
+                posts.splice(index, 1);
+                localStorage.setItem('posts', JSON.stringify(posts)); 
+                renderizarFeed();
+            }
+        }
+
+
+function handleNewPost(e) {
+    e.preventDefault();
+    
+    if (!currentUser) {
+        alert("Erro: Precisas de iniciar sessão para comentar!");
+        navigate('login');
+        return;
+    }
+
+    const textoInput = document.getElementById('novo-post-texto');
+    const texto = textoInput.value;
+    
+    const novoPost = {
+        autor: currentUser.nome || "Utilizador Desconhecido",
+        foto: currentUser.foto || "https://placecats.com/150/150",
+        texto: texto,
+        data: new Date().toLocaleString('pt-BR')
+    };
+    
+    posts.unshift(novoPost); 
+    
+    localStorage.setItem('posts', JSON.stringify(posts));
+    
+    textoInput.value = '';
+    renderizarFeed();
+}
+
+        atualizarNavbar();
+
+    </script>
+
+    <script>
+        const formIds = document.getElementById("formIncidente");
         const listaLogs = document.getElementById("lista-logs");
         const API_URL = "http://localhost:3000/api/logs";
 
@@ -107,47 +521,48 @@
             try {
                 const resposta = await fetch(API_URL);
                 const logs = await resposta.json();
-                renderizar(logs);
+                renderizarLogsIDS(logs);
             } catch (erro) {
                 console.error("Erro de conexão com o sensor IDS:", erro);
             }
         }
 
-        function renderizar(logs) {
+        function renderizarLogsIDS(logs) {
+            if(!listaLogs) return;
             listaLogs.innerHTML = ""; 
             
             logs.forEach(log => {
                 const div = document.createElement("div");
                 div.classList.add("log-item");
-                
                 div.innerHTML = `<strong>IP Origem: ${log.ip}</strong> <p>Ameaça: ${log.detalhes}</p>`;
-                
                 listaLogs.appendChild(div); 
             });
         }
 
-        form.addEventListener("submit", async function(event) {
-            event.preventDefault();
+        if(formIds) {
+            formIds.addEventListener("submit", async function(event) {
+                event.preventDefault();
 
-            const dados = new FormData(form);
-            const payload = {
-                ip: dados.get("ip"),
-                detalhes: dados.get("detalhes")
-            };
+                const dados = new FormData(formIds);
+                const payload = {
+                    ip: dados.get("ip"),
+                    detalhes: dados.get("detalhes")
+                };
 
-            try {
-                await fetch(API_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
+                try {
+                    await fetch(API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
 
-                form.reset(); 
-                carregarLogs();
-            } catch (erro) {
-                console.error("Falha ao registrar log:", erro);
-            }
-        });
+                    formIds.reset(); 
+                    carregarLogs();
+                } catch (erro) {
+                    console.error("Falha ao registrar log:", erro);
+                }
+            });
+        }
 
         carregarLogs();
     </script>
