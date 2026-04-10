@@ -117,12 +117,13 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item"><a class="nav-link" href="#" onclick="navigate('home')">HOME</a></li>
                     <li class="nav-item logged-in-only" style="display:none;"><a class="nav-link" href="#" onclick="navigate('feed')">FEED</a></li>
+                    <li class="nav-item logged-in-only" style="display:none;"><a class="nav-link" href="#" onclick="navigate('forum')">FORUM</a></li>
                     <li class="nav-item logged-in-only" style="display:none;"><a class="nav-link" href="#" onclick="navigate('perfil')">PERFIL</a></li>
                     <li class="nav-item logged-in-only" style="display:none;"><a class="nav-link" href="#" onclick="navigate('config')">CONFIG</a></li>
                     <li class="nav-item"><a class="nav-link text-danger" href="#" onclick="navigate('ids-view')">IDS</a></li>
                 </ul>
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-secondary btn-sm me-3" onclick="toggleTheme()">Alternar Modo</button>
+                    <button class="btn btn-outline-secondary btn-sm me-3" onclick="toggleTheme()">Alternar</button>
                     <button class="btn btn-primary btn-sm me-2 logged-out-only" onclick="navigate('login')">Entrar</button>
                     <button class="btn btn-success btn-sm logged-out-only" onclick="navigate('cadastro')">Cadastrar</button>
                     <button class="btn btn-danger btn-sm logged-in-only" style="display:none;" onclick="logout()">Sair</button>
@@ -267,8 +268,7 @@
         <div id="feed" class="spa-view">
             <div class="row justify-content-center">
                 <div class="col-md-8">
-                    <h2 class="mb-4">> Feed de Comentários _</h2>
-                    
+                    <h2 class="mb-4">> Feed _</h2>
                     <div class="card mb-4 shadow-sm">
                         <div class="card-body">
                             <form onsubmit="handleNewPost(event)">
@@ -281,43 +281,59 @@
                             </form>
                         </div>
                     </div>
+                    <div id="feed-lista"></div>
+                </div>
+            </div>
+        </div>
 
-                    <div id="feed-lista">
+        <div id="forum" class="spa-view">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <h2 class="mb-4">> Fórum _</h2>
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <form onsubmit="handleNewForumPost(event)">
+                                <div class="mb-3">
+                                    <textarea id="novo-forum-texto" class="form-control" rows="3" placeholder="Compartilhe uma curiosidade hacker..." required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <input type="url" id="novo-forum-img" class="form-control" placeholder="URL da Imagem (opcional)">
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-primary">Publicar</button>
+                                </div>
+                            </form>
                         </div>
+                    </div>
+                    <div id="forum-lista"></div>
                 </div>
             </div>
         </div>
 
         <div id="ids-view" class="spa-view rounded">
             <header>
-                <h1>Minha IDS</h1>
+                <h1>IDS</h1>
                 <p>Sistema de Detecção de Intrusão - Painel de Controle</p>
             </header>
-
             <main>
                 <section id="status">
-                    <h2>Status do Sistema</h2>
+                    <h2>Status</h2>
                     <p>Monitoramento de tráfego de rede ativo. Nenhuma anomalia crítica detectada nos últimos 5 minutos.</p>
                 </section>
-
                 <section id="reporte">
-                    <h2>Reportar Anomalia Manualmente</h2>
+                    <h2>Reportar</h2>
                     <form id="formIncidente">
-                        <label for="ip">IP Suspeito:</label><br>
+                        <label for="ip">IP:</label><br>
                         <input type="text" id="ip" name="ip" required><br><br>
-                        
-                        <label for="detalhes">Detalhes da Ameaça:</label><br>
+                        <label for="detalhes">Detalhes:</label><br>
                         <textarea id="detalhes" name="detalhes" placeholder="Descreva o padrão de tráfego anormal..." required></textarea><br><br>
-                        
-                        <button type="submit">Registrar Evento</button>
+                        <button type="submit">Registrar</button>
                     </form>
                 </section>
-
                 <section id="logs">
-                    <h2>Logs de Segurança Recentes</h2>
+                    <h2>Logs</h2>
                     <div id="lista-logs"></div>
                 </section>
-
             </main>
         </div>
 
@@ -326,15 +342,18 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // Dados
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
         let posts = JSON.parse(localStorage.getItem('posts')) || [];
+        let forumPosts = JSON.parse(localStorage.getItem('forumPosts')) || [];
 
+        // Navegação
         function navigate(viewId) {
             document.querySelectorAll('.spa-view').forEach(el => el.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
             
-            if ((viewId === 'feed' || viewId === 'perfil' || viewId === 'config') && !currentUser) {
-                alert("Você precisa estar logado!");
+            if ((viewId === 'feed' || viewId === 'perfil' || viewId === 'config' || viewId === 'forum') && !currentUser) {
+                alert("Bloqueado");
                 navigate('login');
                 return;
             }
@@ -342,6 +361,7 @@
             if (viewId === 'perfil') carregarPerfil();
             if (viewId === 'config') carregarFormConfig();
             if (viewId === 'feed') renderizarFeed();
+            if (viewId === 'forum') renderizarForum();
         }
 
         // Tema
@@ -350,6 +370,7 @@
             modalAviso.show();
         }
 
+        // Confirmar
         function confirmarTemaClaro() {
             const modalAviso = bootstrap.Modal.getInstance(document.getElementById('modalTemaClaro'));
             modalAviso.hide();
@@ -358,6 +379,7 @@
             modalAzar.show();
         }
 
+        // Navbar
         function atualizarNavbar() {
             if (currentUser) {
                 document.querySelectorAll('.logged-out-only').forEach(el => el.style.display = 'none');
@@ -393,7 +415,7 @@
             e.preventDefault();
             if(!currentUser) {
                  currentUser = { 
-                    nome: "Usuário Teste", 
+                    nome: "Admin", 
                     email: document.getElementById('log-email').value, 
                     foto: 'https://via.placeholder.com/150', 
                     bio: '', 
@@ -420,8 +442,8 @@
             document.getElementById('perfil-nome').innerText = currentUser.nome;
             document.getElementById('perfil-email').innerText = currentUser.email;
             document.getElementById('perfil-foto').src = currentUser.foto || 'https://via.placeholder.com/150';
-            document.getElementById('perfil-bio').innerText = currentUser.bio || 'Sem bio definida.';
-            document.getElementById('perfil-interesses').innerText = currentUser.interesses || 'Sem interesses definidos.';
+            document.getElementById('perfil-bio').innerText = currentUser.bio || 'Vazio';
+            document.getElementById('perfil-interesses').innerText = currentUser.interesses || 'Vazio';
         }
 
         // Configuração
@@ -433,6 +455,7 @@
             document.getElementById('conf-interesses').value = currentUser.interesses;
         }
 
+        // Atualizar
         function handleConfigUpdate(e) {
             e.preventDefault();
             currentUser.nome = document.getElementById('conf-nome').value;
@@ -442,11 +465,11 @@
             currentUser.interesses = document.getElementById('conf-interesses').value;
             
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            alert('Perfil atualizado com sucesso!');
+            alert('Sucesso');
             navigate('perfil');
         }
 
-       // Comentários
+       // Feed
        function renderizarFeed() {
             const feedLista = document.getElementById('feed-lista');
             feedLista.innerHTML = '';
@@ -479,61 +502,141 @@
             });
         }
 
+        // ApagarFeed
         function deletarPost(index) {
-            if(confirm("Tem a certeza que deseja apagar este comentário?")) {
+            if(confirm("Confirmar")) {
                 posts.splice(index, 1);
                 localStorage.setItem('posts', JSON.stringify(posts)); 
                 renderizarFeed();
             }
         }
 
+        // PublicarFeed
+        function handleNewPost(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert("Bloqueado");
+                navigate('login');
+                return;
+            }
 
-function handleNewPost(e) {
-    e.preventDefault();
-    
-    if (!currentUser) {
-        alert("Erro: Precisas de iniciar sessão para comentar!");
-        navigate('login');
-        return;
-    }
+            const textoInput = document.getElementById('novo-post-texto');
+            const texto = textoInput.value;
+            
+            const novoPost = {
+                autor: currentUser.nome || "Anônimo",
+                foto: currentUser.foto || "https://placecats.com/150/150",
+                texto: texto,
+                data: new Date().toLocaleString('pt-BR')
+            };
+            
+            posts.unshift(novoPost); 
+            
+            localStorage.setItem('posts', JSON.stringify(posts));
+            
+            textoInput.value = '';
+            renderizarFeed();
+        }
 
-    const textoInput = document.getElementById('novo-post-texto');
-    const texto = textoInput.value;
-    
-    const novoPost = {
-        autor: currentUser.nome || "Utilizador Desconhecido",
-        foto: currentUser.foto || "https://placecats.com/150/150",
-        texto: texto,
-        data: new Date().toLocaleString('pt-BR')
-    };
-    
-    posts.unshift(novoPost); 
-    
-    localStorage.setItem('posts', JSON.stringify(posts));
-    
-    textoInput.value = '';
-    renderizarFeed();
-}
+        // Fórum
+        function renderizarForum() {
+            const forumLista = document.getElementById('forum-lista');
+            forumLista.innerHTML = '';
+            
+            forumPosts.forEach((post, index) => {
+                const ehOAutor = currentUser && currentUser.nome === post.autor;
+                
+                const botaoApagar = ehOAutor 
+                    ? `<button class="btn btn-sm btn-outline-danger" onclick="deletarForumPost(${index})">🗑️</button>` 
+                    : '';
 
+                const imagemHTML = post.imagem ? `<img src="${post.imagem}" class="img-fluid mt-3 border border-success" alt="Imagem" style="max-height: 400px; object-fit: contain; width: 100%;">` : '';
+
+                const card = document.createElement('div');
+                card.className = 'card mb-3 shadow-sm';
+                card.innerHTML = `
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="d-flex align-items-center">
+                                <img src="${post.foto}" width="40" height="40" class="rounded-circle me-2" style="object-fit:cover; border: 1px solid var(--hacker-green);">
+                                <div>
+                                    <h6 class="mb-0 fw-bold">${post.autor}</h6>
+                                    <small class="text-muted">${post.data}</small>
+                                </div>
+                            </div>
+                            ${botaoApagar}
+                        </div>
+                        <p class="card-text mb-0 mt-2">${post.texto}</p>
+                        ${imagemHTML}
+                    </div>
+                `;
+                forumLista.appendChild(card);
+            });
+        }
+
+        // ApagarFórum
+        function deletarForumPost(index) {
+            if(confirm("Confirmar")) {
+                forumPosts.splice(index, 1);
+                localStorage.setItem('forumPosts', JSON.stringify(forumPosts)); 
+                renderizarForum();
+            }
+        }
+
+        // PublicarFórum
+        function handleNewForumPost(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert("Bloqueado");
+                navigate('login');
+                return;
+            }
+
+            const textoInput = document.getElementById('novo-forum-texto');
+            const imgInput = document.getElementById('novo-forum-img');
+            
+            const novoPost = {
+                autor: currentUser.nome || "Anônimo",
+                foto: currentUser.foto || "https://placecats.com/150/150",
+                texto: textoInput.value,
+                imagem: imgInput.value,
+                data: new Date().toLocaleString('pt-BR')
+            };
+            
+            forumPosts.unshift(novoPost); 
+            
+            localStorage.setItem('forumPosts', JSON.stringify(forumPosts));
+            
+            textoInput.value = '';
+            imgInput.value = '';
+            renderizarForum();
+        }
+
+        // Inicializar
         atualizarNavbar();
 
     </script>
 
     <script>
+        // Sensor
         const formIds = document.getElementById("formIncidente");
         const listaLogs = document.getElementById("lista-logs");
         const API_URL = "http://localhost:3000/api/logs";
 
+        // Fetch
         async function carregarLogs() {
             try {
                 const resposta = await fetch(API_URL);
                 const logs = await resposta.json();
                 renderizarLogsIDS(logs);
             } catch (erro) {
-                console.error("Erro de conexão com o sensor IDS:", erro);
+                console.error("Erro", erro);
             }
         }
 
+        // Render
         function renderizarLogsIDS(logs) {
             if(!listaLogs) return;
             listaLogs.innerHTML = ""; 
@@ -541,11 +644,12 @@ function handleNewPost(e) {
             logs.forEach(log => {
                 const div = document.createElement("div");
                 div.classList.add("log-item");
-                div.innerHTML = `<strong>IP Origem: ${log.ip}</strong> <p>Ameaça: ${log.detalhes}</p>`;
+                div.innerHTML = `<strong>IP: ${log.ip}</strong> <p>Ameaça: ${log.detalhes}</p>`;
                 listaLogs.appendChild(div); 
             });
         }
 
+        // Submit
         if(formIds) {
             formIds.addEventListener("submit", async function(event) {
                 event.preventDefault();
@@ -566,11 +670,12 @@ function handleNewPost(e) {
                     formIds.reset(); 
                     carregarLogs();
                 } catch (erro) {
-                    console.error("Falha ao registrar log:", erro);
+                    console.error("Falha", erro);
                 }
             });
         }
 
+        // Executar
         carregarLogs();
     </script>
 </body>

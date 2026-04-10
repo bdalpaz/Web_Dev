@@ -12,7 +12,18 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "better-sqlite3": "^12.8.0",
     "cors": "^2.8.6",
-    "express": "^5.2.1"
-  }
+    "express": "^5.2.1",
+    "sqlite3": "^6.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bdalpaz/Web_Dev.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bdalpaz/Web_Dev/issues"
+  },
+  "homepage": "https://github.com/bdalpaz/Web_Dev#readme"
 }
