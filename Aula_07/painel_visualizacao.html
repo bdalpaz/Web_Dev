@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Visualização</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #ffffff;
+      min-height: 100vh;
+      overflow: hidden;
+      transition: background-color 0.3s ease;
+      position: relative;
+    }
+
+    #canvas {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .forma {
+      position: absolute;
+      transition: width 0.3s, height 0.3s, border-width 0.3s;
+      animation: surgir 0.4s ease-out;
+      cursor: pointer;
+    }
+
+    .forma:hover {
+      filter: brightness(1.2);
+      transform: scale(1.1);
+    }
+
+    @keyframes surgir {
+      from {
+        opacity: 0;
+        transform: scale(0);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .circulo {
+      border-radius: 50%;
+    }
+
+    .quadrado {
+      border-radius: 6px;
+    }
+
+    .triangulo {
+      width: 0 !important;
+      height: 0 !important;
+      background: transparent !important;
+    }
+
+    .texto-flutuante {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      animation: textoEntrar 0.5s ease-out;
+      max-width: 80%;
+      word-wrap: break-word;
+      z-index: 10;
+    }
+
+    @keyframes textoEntrar {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #teclaIndicador {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #1a1a2e;
+      color: #53d8fb;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 1.2rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 20;
+    }
+
+    #teclaIndicador.visivel {
+      opacity: 1;
+    }
+
+    #hoverIndicador {
+      position: fixed;
+      bottom: 10px;
+      left: 10px;
+      background: #e94560;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 20;
+    }
+
+    #hoverIndicador.visivel {
+      opacity: 1;
+    }
+
+    @keyframes pulsar {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.5); opacity: 0.5; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+
+    .efeito-pulso {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 100px;
+      height: 100px;
+      margin: -50px 0 0 -50px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #e94560, #53d8fb, #0f3460);
+      animation: pulsar 1s ease-out forwards;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    @keyframes chuvaParticulas {
+      0% { transform: translateY(-10px); opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+
+    .particula {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 25;
+      animation: chuvaParticulas 2s ease-in forwards;
+    }
+
+    #statusBar {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      color: #53d8fb;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-family: monospace;
+      z-index: 20;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="canvas"></div>
+  <div id="teclaIndicador"></div>
+  <div id="hoverIndicador">Hover detectado!</div>
+  <div id="statusBar">Formas: 0 | Aguardando...</div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const teclaIndicador = document.getElementById('teclaIndicador');
+    const hoverIndicador = document.getElementById('hoverIndicador');
+    const statusBar = document.getElementById('statusBar');
+
+    let tamanhoAtual = 60;
+    let totalFormas = 0;
+    let teclaTimeout = null;
+    let hoverTimeout = null;
+
+    function corAleatoria() {
+      const cores = [
+        '#e94560', '#53d8fb', '#0f3460', '#f39c12',
+        '#2ecc71', '#9b59b6', '#e74c3c', '#1abc9c',
+        '#3498db', '#e67e22', '#ff6b6b', '#6c5ce7'
+      ];
+      return cores[Math.floor(Math.random() * cores.length)];
+    }
+
+    function posAleatoria(tamanho) {
+      const x = Math.random() * (canvas.clientWidth - tamanho);
+      const y = Math.random() * (canvas.clientHeight - tamanho);
+      return { x, y };
+    }
+
+    function atualizarStatus(msg) {
+      statusBar.textContent = `Formas: ${totalFormas} | ${msg}`;
+    }
+
+    function responderAoPai(tipo, mensagem) {
+      window.parent.postMessage({ tipo, mensagem }, '*');
+    }
+
+    function adicionarForma(tipo) {
+      const cor = corAleatoria();
+      const pos = posAleatoria(tamanhoAtual);
+      const el = document.createElement('div');
+      el.classList.add('forma');
+      totalFormas++;
+
+      if (tipo === 'circulo') {
+        el.classList.add('circulo');
+        el.style.width = tamanhoAtual + 'px';
+        el.style.height = tamanhoAtual + 'px';
+        el.style.background = cor;
+      } else if (tipo === 'quadrado') {
+        el.classList.add('quadrado');
+        el.style.width = tamanhoAtual + 'px';
+        el.style.height = tamanhoAtual + 'px';
+        el.style.background = cor;
+      } else if (tipo === 'triangulo') {
+        el.classList.add('triangulo');
+        const metade = Math.floor(tamanhoAtual / 2);
+        el.style.borderLeft = metade + 'px solid transparent';
+        el.style.borderRight = metade + 'px solid transparent';
+        el.style.borderBottom = tamanhoAtual + 'px solid ' + cor;
+      }
+
+      el.style.left = pos.x + 'px';
+      el.style.top = pos.y + 'px';
+
+      el.addEventListener('click', () => {
+        el.style.animation = 'surgir 0.3s ease-in reverse';
+        setTimeout(() => {
+          el.remove();
+          totalFormas--;
+          atualizarStatus('Forma removida');
+          responderAoPai('FORMA_REMOVIDA', `Forma ${tipo} removida pelo usuário`);
+        }, 280);
+      });
+
+      canvas.appendChild(el);
+      atualizarStatus(`${tipo} adicionado`);
+      responderAoPai('FORMA_ADICIONADA', `${tipo} criado com sucesso`);
+    }
+
+    function mudarTamanho(novoTamanho) {
+      tamanhoAtual = novoTamanho;
+      document.querySelectorAll('.forma').forEach(el => {
+        if (el.classList.contains('triangulo')) {
+          const metade = Math.floor(novoTamanho / 2);
+          el.style.borderLeft = metade + 'px solid transparent';
+          el.style.borderRight = metade + 'px solid transparent';
+          el.style.borderBottom = novoTamanho + 'px solid ' + el.style.borderBottomColor;
+        } else {
+          el.style.width = novoTamanho + 'px';
+          el.style.height = novoTamanho + 'px';
+        }
+      });
+    }
+
+    function mostrarTexto(texto) {
+      const el = document.createElement('div');
+      el.classList.add('texto-flutuante');
+      el.textContent = texto;
+      el.style.left = (Math.random() * 60 + 10) + '%';
+      el.style.top = (Math.random() * 60 + 10) + '%';
+      canvas.appendChild(el);
+
+      setTimeout(() => {
+        el.style.opacity = '0';
+        el.style.transition = 'opacity 0.5s';
+        setTimeout(() => el.remove(), 500);
+      }, 3000);
+
+      responderAoPai('TEXTO_EXIBIDO', `Texto "${texto}" exibido`);
+    }
+
+    function mostrarTecla(tecla) {
+      teclaIndicador.textContent = tecla;
+      teclaIndicador.classList.add('visivel');
+
+      clearTimeout(teclaTimeout);
+      teclaTimeout = setTimeout(() => {
+        teclaIndicador.classList.remove('visivel');
+      }, 1500);
+    }
+
+    function mostrarHover(contador) {
+      hoverIndicador.textContent = `Hover detectado! (${contador}x)`;
+      hoverIndicador.classList.add('visivel');
+
+      clearTimeout(hoverTimeout);
+      hoverTimeout = setTimeout(() => {
+        hoverIndicador.classList.remove('visivel');
+      }, 2000);
+    }
+
+    function efeitoEspecial() {
+      const pulso = document.createElement('div');
+      pulso.classList.add('efeito-pulso');
+      document.body.appendChild(pulso);
+      setTimeout(() => pulso.remove(), 1000);
+
+      for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.classList.add('particula');
+        p.style.left = Math.random() * 100 + '%';
+        p.style.top = '-10px';
+        p.style.background = corAleatoria();
+        p.style.animationDelay = (Math.random() * 0.5) + 's';
+        p.style.animationDuration = (1 + Math.random() * 2) + 's';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 3000);
+      }
+
+      atualizarStatus('Efeito especial ativado!');
+      responderAoPai('EFEITO_CONFIRMADO', 'Animação especial executada com sucesso');
+    }
+
+    function resetPainel() {
+      canvas.innerHTML = '';
+      document.body.style.backgroundColor = '#ffffff';
+      totalFormas = 0;
+      tamanhoAtual = 60;
+      atualizarStatus('Painel limpo');
+      responderAoPai('RESET_CONFIRMADO', 'Painel foi resetado');
+    }
+
+    window.addEventListener('message', (event) => {
+      const dados = event.data;
+      if (!dados || !dados.tipo) return;
+
+      switch (dados.tipo) {
+        case 'ADICIONAR_FORMA':
+          adicionarForma(dados.forma);
+          break;
+        case 'MUDAR_COR_FUNDO':
+          document.body.style.backgroundColor = dados.cor;
+          atualizarStatus('Cor de fundo alterada');
+          break;
+        case 'MUDAR_TAMANHO':
+          mudarTamanho(dados.tamanho);
+          atualizarStatus(`Tamanho: ${dados.tamanho}px`);
+          break;
+        case 'MOSTRAR_TEXTO':
+          mostrarTexto(dados.texto);
+          break;
+        case 'TECLA_PRESSIONADA':
+          mostrarTecla(dados.tecla);
+          break;
+        case 'HOVER_DETECTADO':
+          mostrarHover(dados.contador);
+          break;
+        case 'EFEITO_ESPECIAL':
+          efeitoEspecial();
+          break;
+        case 'RESET':
+          resetPainel();
+          break;
+      }
+    });
+
+    atualizarStatus('Aguardando comandos...');
+  </script>
+
+</body>
+</html>

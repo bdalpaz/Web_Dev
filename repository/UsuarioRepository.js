@@ -11,4 +11,15 @@ function insert(nome, email, senhaHash, callback) {
   );
 }
 
-module.exports = { insert };
+function findByEmail(email, callback) {
+  db.get(
+    'SELECT * FROM usuario WHERE email = ?',
+    [email],
+    (err, row) => {
+      if (err) return callback(err);
+      callback(null, row);
+    }
+  );
+}
+
+module.exports = { insert, findByEmail };

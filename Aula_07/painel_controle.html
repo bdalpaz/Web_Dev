@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Controle</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background: #16213e;
+      padding: 16px 24px;
+      border-bottom: 2px solid #0f3460;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      color: #e94560;
+    }
+
+    header p {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    .container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .controle {
+      width: 380px;
+      padding: 20px;
+      background: #16213e;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .controle h2 {
+      font-size: 1rem;
+      color: #e94560;
+      border-bottom: 1px solid #0f3460;
+      padding-bottom: 8px;
+    }
+
+    .section {
+      background: #1a1a2e;
+      border: 1px solid #0f3460;
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .section h3 {
+      font-size: 0.85rem;
+      color: #53d8fb;
+      margin-bottom: 10px;
+    }
+
+    .section label {
+      display: block;
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+
+    input[type="text"],
+    input[type="color"],
+    input[type="range"],
+    select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #0f3460;
+      border-radius: 4px;
+      background: #16213e;
+      color: #eee;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    input[type="color"] {
+      height: 40px;
+      cursor: pointer;
+    }
+
+    input[type="range"] {
+      cursor: pointer;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: transform 0.1s, box-shadow 0.2s;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: #e94560;
+      color: #fff;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 12px rgba(233, 69, 96, 0.5);
+    }
+
+    .btn-shape {
+      background: #0f3460;
+      color: #53d8fb;
+      width: 100%;
+      margin-bottom: 6px;
+    }
+
+    .btn-shape:hover {
+      box-shadow: 0 0 10px rgba(83, 216, 251, 0.3);
+    }
+
+    .btn-reset {
+      background: #333;
+      color: #aaa;
+      width: 100%;
+    }
+
+    .hover-zone {
+      width: 100%;
+      height: 60px;
+      background: #0f3460;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      color: #53d8fb;
+      transition: background 0.3s;
+      cursor: default;
+    }
+
+    .hover-zone:hover {
+      background: #e94560;
+      color: #fff;
+    }
+
+    .iframe-container {
+      flex: 1;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .iframe-container h2 {
+      font-size: 1rem;
+      color: #53d8fb;
+      margin-bottom: 8px;
+    }
+
+    iframe {
+      flex: 1;
+      border: 2px solid #0f3460;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    #log {
+      background: #0d0d1a;
+      border: 1px solid #0f3460;
+      border-radius: 6px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: #53d8fb;
+      max-height: 120px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+
+    #log p {
+      margin: 2px 0;
+      border-bottom: 1px solid #1a1a2e;
+      padding-bottom: 2px;
+    }
+
+    .key-indicator {
+      display: inline-block;
+      padding: 4px 10px;
+      background: #0f3460;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #53d8fb;
+      min-width: 40px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Aula 07 - Eventos</h1>
+    <p>Mexe nos controles aí e vê o resultado aparecendo no painel ao lado em tempo real.</p>
+  </header>
+
+  <div class="container">
+    <div class="controle">
+      <h2>Bora lá</h2>
+
+      <div class="section">
+        <h3>Joga umas formas aí (click)</h3>
+        <button class="btn-shape" id="btnCirculo">Adicionar Círculo</button>
+        <button class="btn-shape" id="btnQuadrado">Adicionar Quadrado</button>
+        <button class="btn-shape" id="btnTriangulo">Adicionar Triângulo</button>
+      </div>
+
+      <div class="section">
+        <h3>Personaliza do seu jeito (input / change)</h3>
+        <label for="corFundo">Cor de fundo do painel:</label>
+        <input type="color" id="corFundo" value="#ffffff">
+
+        <label for="tamanhoForma">Tamanho das formas: <span id="tamanhoValor">60</span>px</label>
+        <input type="range" id="tamanhoForma" min="20" max="150" value="60">
+
+        <label for="textoMensagem">Mensagem de texto:</label>
+        <input type="text" id="textoMensagem" placeholder="Digite uma mensagem...">
+        <button class="btn-primary" id="btnEnviarTexto">Enviar Mensagem</button>
+      </div>
+
+      <div class="section">
+        <h3>Digita aí (keydown)</h3>
+        <p style="font-size:0.8rem;color:#aaa;margin-bottom:8px;">Aperta qualquer tecla e vê o que acontece:</p>
+        <p>Última tecla: <span class="key-indicator" id="ultimaTecla">-</span></p>
+      </div>
+
+      <div class="section">
+        <h3>Passa o mouse (mouseover)</h3>
+        <div class="hover-zone" id="zonaHover">
+          Passe o mouse aqui
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Surpresa (evento customizado)</h3>
+        <p style="font-size:0.8rem;color:#aaa;margin-bottom:8px;">Clica e vê a mágica acontecer no painel.</p>
+        <button class="btn-primary" id="btnCustomEvent">Soltar o efeito especial</button>
+      </div>
+
+      <div class="section">
+        <button class="btn-reset" id="btnReset">Limpar Painel de Visualização</button>
+      </div>
+    </div>
+
+    <div class="iframe-container">
+      <h2>Resultado ao vivo (iframe)</h2>
+      <iframe id="painelVisualizacao" src="/aula07/visualizacao"></iframe>
+      <div id="log"></div>
+    </div>
+  </div>
+
+  <script>
+    const iframe = document.getElementById('painelVisualizacao');
+    const logEl = document.getElementById('log');
+    let contadorHover = 0;
+
+    function addLog(msg) {
+      const p = document.createElement('p');
+      const hora = new Date().toLocaleTimeString();
+      p.textContent = `[${hora}] ${msg}`;
+      logEl.prepend(p);
+      while (logEl.children.length > 50) {
+        logEl.removeChild(logEl.lastChild);
+      }
+    }
+
+    function enviarParaIframe(dados) {
+      iframe.contentWindow.postMessage(dados, '*');
+      addLog(`Enviado: ${dados.tipo}`);
+    }
+
+    document.getElementById('btnCirculo').addEventListener('click', () => {
+      enviarParaIframe({ tipo: 'ADICIONAR_FORMA', forma: 'circulo' });
+    });
+
+    document.getElementById('btnQuadrado').addEventListener('click', () => {
+      enviarParaIframe({ tipo: 'ADICIONAR_FORMA', forma: 'quadrado' });
+    });
+
+    document.getElementById('btnTriangulo').addEventListener('click', () => {
+      enviarParaIframe({ tipo: 'ADICIONAR_FORMA', forma: 'triangulo' });
+    });
+
+    document.getElementById('corFundo').addEventListener('input', (e) => {
+      enviarParaIframe({ tipo: 'MUDAR_COR_FUNDO', cor: e.target.value });
+    });
+
+    document.getElementById('tamanhoForma').addEventListener('input', (e) => {
+      document.getElementById('tamanhoValor').textContent = e.target.value;
+      enviarParaIframe({ tipo: 'MUDAR_TAMANHO', tamanho: parseInt(e.target.value) });
+    });
+
+    document.getElementById('textoMensagem').addEventListener('change', (e) => {
+      addLog(`Texto alterado: "${e.target.value}"`);
+    });
+
+    document.getElementById('btnEnviarTexto').addEventListener('click', () => {
+      const texto = document.getElementById('textoMensagem').value;
+      if (texto.trim()) {
+        enviarParaIframe({ tipo: 'MOSTRAR_TEXTO', texto: texto });
+        document.getElementById('textoMensagem').value = '';
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      document.getElementById('ultimaTecla').textContent = e.key;
+      enviarParaIframe({ tipo: 'TECLA_PRESSIONADA', tecla: e.key, codigo: e.code });
+    });
+
+    document.getElementById('zonaHover').addEventListener('mouseenter', () => {
+      contadorHover++;
+      document.getElementById('zonaHover').textContent = `Hover detectado! (${contadorHover}x)`;
+      enviarParaIframe({ tipo: 'HOVER_DETECTADO', contador: contadorHover });
+    });
+
+    document.getElementById('zonaHover').addEventListener('mouseleave', () => {
+      document.getElementById('zonaHover').textContent = 'Passe o mouse aqui';
+    });
+
+    const eventoEspecial = new CustomEvent('efeitoEspecial', {
+      detail: { acao: 'animacao_especial', timestamp: Date.now() }
+    });
+
+    document.getElementById('btnCustomEvent').addEventListener('click', () => {
+      document.dispatchEvent(new CustomEvent('efeitoEspecial', {
+        detail: { acao: 'animacao_especial', timestamp: Date.now() }
+      }));
+    });
+
+    document.addEventListener('efeitoEspecial', (e) => {
+      addLog(`Evento customizado disparado: ${e.detail.acao}`);
+      enviarParaIframe({ tipo: 'EFEITO_ESPECIAL', detalhe: e.detail });
+    });
+
+    document.getElementById('btnReset').addEventListener('click', () => {
+      enviarParaIframe({ tipo: 'RESET' });
+      contadorHover = 0;
+    });
+
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.tipo) {
+        addLog(`Recebido do iframe: ${event.data.tipo} - ${event.data.mensagem || ''}`);
+      }
+    });
+  </script>
+
+</body>
+</html>
